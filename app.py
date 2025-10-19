@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
 import joblib
-
-# Tải mô hình và các thành phần liên quan
-
 from xgboost import XGBClassifier
 model = XGBClassifier()
 model.load_model("xgb_model.json")
@@ -12,8 +9,6 @@ scaler = joblib.load("scaler.pkl")
 feature_columns = joblib.load("feature_columns.pkl")
 
 st.set_page_config(page_title="Dự đoán khách hàng", layout="wide")
-
-# Nhãn hiển thị cho các trường
 label_map = {
     "Tuoi": "Tuổi",
     "Thu_nhap": "Thu nhập",
@@ -31,13 +26,11 @@ label_map = {
     "Td_hoc_van": "Trình độ học vấn"
 }
 
-# Các đặc trưng nhập số
 numeric_features = [
     "Tuoi", "Thu_nhap", "Chi_tieu", "Tien_dien",
     "So_tien_vay", "Th_kvay", "Nguoi_phu_thuoc"
 ]
 
-# Các đặc trưng phân loại cần ánh xạ
 categorical_mappings = {
     "Tt_cv": [str(i) for i in range(1, 21)],
     "Tt_hon_nhan": {
@@ -74,17 +67,14 @@ categorical_mappings = {
     }
 }
 
-# Giao diện nhập liệu
 st.subheader("📥 Nhập thông tin khách hàng")
 user_input = {}
 
-# Nhập số: chia thành 2 dòng
 cols_num = st.columns(4)
 for i, feature in enumerate(numeric_features):
     with cols_num[i % 4]:
         user_input[feature] = st.number_input(label_map[feature], value=0, step=1)
 
-# Chọn dropdown: chia thành 3–4 dòng
 cat_features = list(categorical_mappings.keys())
 for row in range(0, len(cat_features), 3):
     cols_cat = st.columns(3)
@@ -97,7 +87,6 @@ for row in range(0, len(cat_features), 3):
             else:
                 user_input[feature] = ""
 
-# Nút dự đoán: đặt giữa và làm to
 st.markdown("<br>", unsafe_allow_html=True)
 centered_button = st.columns([1, 2, 1])[1]
 with centered_button:
@@ -110,7 +99,6 @@ with centered_button:
             if missing_count > 3:
                 st.warning("⚠️ Bạn đang bỏ trống quá nhiều thông tin, kết quả dự đoán có thể không chính xác.")
 
-            # Xử lý dữ liệu đầu vào
             input_df = pd.DataFrame([user_input])
             input_encoded = pd.get_dummies(input_df)
             input_encoded = input_encoded.reindex(columns=feature_columns, fill_value=0)
@@ -125,4 +113,4 @@ with centered_button:
                 2: "Chắc chắn trả được nợ"
             }
 
-            st.success(f"✅ Kết quả dự đoán: {label_mapping[prediction]}")
+            st.success(f"Kết quả dự đoán: {label_mapping[prediction]}")
